@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>详情页</title>
+    <link rel="stylesheet" href="{% static 'css/semantic.css' %}" media="screen" title="no title" charset="utf-8">
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}" media="screen" title="no title" charset="utf-8">
+    <script src="/static/js/vue1.js"></script>
+    <script src="/static/js/reqwest.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.js"></script>
+  </head>
+  <body id="app">
+    <div class="ui red basic segment  topmenu">
+      <div class="ui borderless menu container" style="border:0;box-shadow:none;">
+          <div class="header item" style="margin-right:10px;">
+            <div class="ui image">
+              <img src="{%static 'images/index/zhiribao.png' %}" alt="" />
+            </div>
+          </div>
+          <div class="item" style="margin-right:10px;">
+            <a href="{% url 'index' %}">首页</a>
+          </div>
+          {% verbatim %}
+          <div v-for="cate in cates" class="item" style="margin-right:10px;">
+            <a href="/category/{{cate.id}}">{{cate.name}}</a>
+          </div>
+          {% endverbatim %}
+
+
+        <div class="right menu login">
+          {% if request.user.is_authenticated %}
+            <div class="item">
+              <a href="{% url 'profile' %}"><div class="ui image">
+                  <img src="/upload/{{ request.user.profile.avatar }}" style="height:26px;width:24px;" alt="" />
+              </div>
+              <p style="margin-right:10px;margin-top:6px;color:black;">{{ request.user.username }}</p>
+              </a>
+
+            </div>
+            <div class="item">
+              <a href="{% url "logout" %}">
+                                    退出
+              </a>
+            </div>
+          {% else %}
+            <div class="item">
+              <a href="{% url 'login' %}"><div class="ui image">
+                  <img src="{% static 'images/index/login.png' %}" alt="" />
+              </div>
+              <p style="margin-right:10px;margin-top:6px;color:black;">登录</p>
+              </a>
+
+            </div>
+            <div class="item">
+              <a href="{% url 'register' %}">  <div class="ui image">
+                   <img src="{% static 'images/index/register.png' %}" alt="" />
+                </div>
+                <p style="color:black;">注册</p>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="ui basic segment container">
+      <div class="ui horizontal basic segments bodycontent">
+        <div class="ui segment bodyleft" style="border:none;box-shadow:none;">
+          {% verbatim %}
+          <div class="ui basic segment articleimg" style="background:url('{{article.image}}');background-size: cover;
+          background-repeat: no-repeat;">
+            <hr>
+            <div class="image-text" >
+             {{article.title}}
+            </div>
+            <span>图片:Zoommy</span>
+          </div>
+          <div class="ui center aligned basic segment abstract">
+            *** <br>
+
+           {{article.abstract}} <br>
+
+              ***
+          </div>
+          <div class="ui basic segment articledetail">
+            <h1>{{article.title}}</h1>
+            <p>
+              <div class="ui mini image" style="position:relative;top:-2px;left:5px;">
+                 <img  src="{{article.author_avatar}}"  alt="" />
+              </div>
+              <span style="font-size:16px;color: #000000;margin-left:10px;"> {{ article.author_name }}</span>
+              <span style="color:grey;font-size:16px;">{{ article.author_desc }}</span>
+            <p style="color:#000000;width:600px;font-size:16px;margin-top:20px;line-height:2;">
+              {{article.content}}
+            </p>
+            <a href="{{article.source_link}}"><span style="border-bottom:1px solid red;font-size:16px;margin-top:50px;margin-left:520px;">查看原文</span></a>
+          </div>
+       {% endverbatim %}
+          <div class="ui basic segment comment">
+            <p ><b>评论</b></p>
+            {% verbatim %}
+            <div v-for="comment in comments" class="comment" style="margin-top:22px;margin-bottom:20px;">
+              <div class="ui image" style="height:50px;width:50px;">
+                <img src="{{ comment.belong_user.profile.avatar }}" style="height:50px;width:50px;" alt="" />
+              </div>
+               <span class="time">&nbsp;&nbsp;&nbsp;<b style="color:black;">{{comment.belong_user.username}}</b>&nbsp;&nbsp;&nbsp;{{comment.created}}</span>
+               <span class="black-reply">&nbsp;&nbsp;&nbsp;{{comment.words}}</span>
+            </div>
+          {% endverbatim %}
+          {% verbatim %}
+          <form class="ui error form"  method="POST" >
+            <textarea name="comment" rows="8" cols="40" v-model="words"></textarea>
+          </form>
+          <button class="ui red button" v-on:click="sendcomment" style="width:144px;height:49px;position:relative;top:60px;" >
+                <span style="color: #ffffff;font-size: 20px;font-weight: bold;">写评论</span>
+          </button>
+          {% endverbatim %}
+          </div>
+
+        </div>
+        <div class="ui segment bodyright" style="border:none;box-shadow:none;">
+          <div class="ui red segment best">
+            <h4 class="ui center aligned header"><b>编辑推荐</b></h4>
+            {% for editor_recommendtop3 in editor_recommendtop3list %}
+
+            <div class="ui segment top3" style="background:url('/upload/{{editor_recommendtop3.image}}');
+            background-size:cover;background-repeat:no-repeat;border-radius:0;">
+             <div class="sidebutton">
+               <img src="{% static 'images/index/redtag.png' %}" alt="" />
+               <p>Top{{ forloop.counter }}</p>
+             </div>
+
+             <div class="ui basic segment title" style="height:40px;padding-top:2px;">
+                  <p style="font-size:14px;margin-left:0px;"><a href="/detail/{{editor_recommendtop3.id}}" style="color:#fff;">{{editor_recommendtop3.title}}</a></p>
+             </div>
+
+            </div>
+
+            {% endfor %}
+
+            {% for editor_recommend in editor_recommendlist %}
+
+            <div class="ui segment bestlast">
+              <img src="{% static 'images/index/Triangle.png' %}" alt="" />
+
+              <p>
+                <a href="/detail/{{editor_recommend.id}}">
+               {{editor_recommend.title}}
+                </a>
+              </p>
+
+             <span>{{editor_recommend.publish_time | date:"Y-m-d"}}</span>
+            </div>
+
+            {% endfor %}
+            <div class="ui image">
+              <img src="{% static 'images/index/ad.png' %}" alt="" style="width:300px;"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ui basic segment bottomblack">
+      <div class="ui image">
+        <img src="{% static 'images/index/white_zhiribao.png' %}" alt="" />
+      </div>
+      <p style="color:red;margin-top:50px;font-size:20px;">
+        关于我们<span style="color:rgb(143, 143, 143)">｜</span>加入我们<span style="color:rgb(143, 143, 143)">｜</span>联系我们｜寻求报道
+      </p>
+      <p style="color:white;font-size:20px;">
+        反馈建议:<span style="color:red;">124608760@qq.com</span>
+      </p>
+      <div class="ui  basic segment wechat">
+        <img src="{% static 'images/index/qrcode.png' %}" style="margin-left:38px;"/>
+        <h2 class="ui header" style="color:rgb(255, 255, 255);margin-left:20px;">扫码关注微信号</h2>
+      </div>
+      <button type="button" name="button" class="ui circular red button backtotop">
+        <img src="{% static 'images/index/upicon.png' %}" style="position:absolute;left:18%;top:10%;">
+        <img src="{% static 'images/index/TOP.png' %}" style="position:absolute;left:18%;bottom:28%;">
+      </button>
+    </div>
+    <div class="ui basic segment bottomwhite">
+      <p>
+        Designed by Mugglecoding
+      </p>
+      <p>
+        Developed by XYX
+      </p>
+      <p style="position:absolute;right:250px;top:40px;">
+        京ICP备123878345号
+      </p>
+    </div>
+    <script>
+      var vm = new Vue(
+        {
+          el:"#app",
+          data:{
+               "cates":[],
+               "editor_recommendtop3list":[],
+               "editor_recommendlist":[],
+               "article":[],
+               "comments":[],
+               "article_id":'',
+               "created":'',
+               "words":'',
+          },
+          methods:{
+            sendcomment:function(){
+              var self = this;
+              var id = location.href.split("/")[4];
+              var datenow = new Date();
+              reqwest({
+                url:'/api/detail/'+ id +'/',
+                type:'json',
+                method:'post',
+                headers:Cookies.get('token')? {'Authorization': 'Token ' + Cookies.get('token')}:{},
+                data:{
+                  article_id:id,
+                  created:datenow.toISOString(),
+                  words:self.words
+                },
+                success:function(resp){
+                  location.reload();
+                }
+              })
+            },
+
+            getdata:function(){
+              var self = this;
+              var id = location.href.split("/")[4];
+              reqwest({
+                url:'/api/detail/'+id,
+                type:'json',
+                method:'get',
+                success:function(resp){
+                  console.log(resp);
+                  self.cates = resp.cates;
+                  self.editor_recommendtop3list = resp.editor_recommendtop3list;
+                  self.editor_recommendlist = resp.editor_recommendlist;
+                  self.article = resp.article;
+                  self.comments = resp.comments;
+                },
+              })
+            },
+          },
+
+          ready:function(){
+            this.getdata();
+          }
+
+
+        }
+      )
+    </script>
+  </body>
+</html>

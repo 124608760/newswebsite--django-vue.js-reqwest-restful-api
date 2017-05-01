@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>分类页</title>
+    <link rel="stylesheet" href="{% static 'css/semantic.css' %}" media="screen" title="no title" charset="utf-8">
+    <link rel="stylesheet" href="{% static 'css/category.css' %}" media="screen" title="no title" charset="utf-8">
+    <script src="/static/js/vue1.js"></script>
+    <script src="/static/js/reqwest.js"></script>
+  </head>
+  <body id="app">
+    <div class="ui red basic segment  topmenu">
+      <div class="ui borderless menu container" style="border:0;box-shadow:none;">
+          <div class="header item" style="margin-right:10px;">
+            <div class="ui image">
+              <img src="{%static 'images/index/zhiribao.png' %}" alt="" />
+            </div>
+          </div>
+          <div class="item" style="margin-right:10px;">
+            <a href="{% url 'index' %}">首页</a>
+          </div>
+          {% verbatim %}
+          <div v-for="cate in cates" class="item" style="margin-right:10px;">
+            <a href="/category/{{cate.id}}">{{cate.name}}</a>
+          </div>
+          {% endverbatim %}
+
+        <div class="right menu login">
+          {% if request.user.is_authenticated %}
+            <div class="item">
+              <a href="{% url 'profile' %}"><div class="ui image">
+                  <img src="/upload/{{ request.user.profile.avatar }}" style="height:26px;width:24px;" alt="" />
+              </div>
+              <p style="margin-right:10px;margin-top:6px;color:black;">{{ request.user.username }}</p>
+              </a>
+
+            </div>
+            <div class="item">
+              <a href="{% url "logout" %}">
+                                    退出
+              </a>
+            </div>
+          {% else %}
+            <div class="item">
+              <a href="{% url 'login' %}"><div class="ui image">
+                  <img src="{% static 'images/index/login.png' %}" alt="" />
+              </div>
+              <p style="margin-right:10px;margin-top:6px;color:black;">登录</p>
+              </a>
+
+            </div>
+            <div class="item">
+              <a href="{% url 'register' %}">  <div class="ui image">
+                   <img src="{% static 'images/index/register.png' %}" alt="" />
+                </div>
+                <p style="color:black;">注册</p>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="ui basic segment container">
+      <div class="ui horizontal basic segments bodycontent">
+        <div class="ui segment bodyleft" style="border:none;box-shadow:none;">
+          {% verbatim %}
+          <div v-for="article in article_list" class="ui segment article" style="border:none;box-shadow:none;">
+            <div class="ui image">
+              <img src="{{article.image}}" alt="" />
+            </div>
+            <div class="ui segment articlecontent" style="border:none;box-shadow:none;">
+              <a href="/detail/{{article.id}}"><h3><b>{{article.title}}</b></h3></a>
+              <p>
+                {{article.abstract}}
+              </p>
+              <span style="color:rgb(206, 208, 204);position:absolute;transform:translate(0,100%);bottom:10%">{{article.publish_time | date:"Y-m-d"}}</span>
+            </div>
+          </div>
+          {% endverbatim %}
+          <div class="ui pagination menu" style="margin-left:50%;transform:translate(-50%,0%);">
+            {% verbatim %}
+            <a v-on:click="update_page(this_page-1)" class="{{ previous_disabled_status() }} item"><i class="icon {{ leftcaret_color() }} left caret"></i></a>
+            <a v-on:click="update_page(pagenumber+1)" v-for="pagenumber in pages" class="{{ pagenum_active_status(pagenumber+1) }} item" style="{{ pagenum_color(pagenumber+1) }}">
+                                        {{ pagenumber+1 }}
+            </a>
+            <a v-on:click="update_page(this_page+1)" class="{{ next_disabled_status() }} item"><i class="icon {{ rightcaret_color() }} right caret"></i></a>
+            {% endverbatim %}
+          </div>
+        </div>
+        <div class="ui segment bodyright" style="border:none;box-shadow:none;">
+          <div class="ui red segment best">
+            <h4 class="ui center aligned header"><b>编辑推荐</b></h4>
+            {% verbatim %}
+            <div v-for="editor_recommendtop3 in editor_recommendtop3list" class="ui segment top3" style="background:url('{{editor_recommendtop3.image}}');
+            background-size:cover;background-repeat:no-repeat;border-radius:0;">
+             <div class="sidebutton">
+               <img src="/static/images/index/redtag.png" alt="" />
+               <p>Top{{ $index+1 }}</p>
+             </div>
+             <div class="ui basic segment title" style="height:40px;padding-top:2px;">
+                  <p style="font-size:14px;margin-left:0px;"><a href="/detail/{{editor_recommendtop3.id}}" style="color:#fff;">{{editor_recommendtop3.title}}</a></p>
+             </div>
+            </div>
+            {% endverbatim %}
+
+            {% verbatim %}
+            <div v-for="editor_recommend in editor_recommendlist" class="ui segment bestlast">
+              <img src="/static/images/index/Triangle.png" alt="" />
+              <p>
+                <a href="/detail/{{editor_recommend.id}}">
+               {{editor_recommend.title}}
+                </a>
+              </p>
+             <span>{{editor_recommend.publish_time | date:"Y-m-d"}}</span>
+            </div>
+           {% endverbatim %}
+            <div class="ui image">
+              <img src="{% static 'images/index/ad.png' %}" alt="" style="width:300px;"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ui basic segment bottomblack">
+      <div class="ui image">
+        <img src="{% static 'images/index/white_zhiribao.png' %}" alt="" />
+      </div>
+      <p style="color:red;margin-top:50px;font-size:20px;">
+        关于我们<span style="color:rgb(143, 143, 143)">｜</span>加入我们<span style="color:rgb(143, 143, 143)">｜</span>联系我们｜寻求报道
+      </p>
+      <p style="color:white;font-size:20px;">
+        反馈建议:<span style="color:red;">124608760@qq.com</span>
+      </p>
+      <div class="ui  basic segment wechat">
+        <img src="{% static 'images/index/qrcode.png' %}" style="margin-left:38px;"/>
+        <h2 class="ui header" style="color:rgb(255, 255, 255);margin-left:20px;">扫码关注微信号</h2>
+      </div>
+      <button type="button" name="button" class="ui circular red button backtotop">
+        <img src="{% static 'images/index/upicon.png' %}" style="position:absolute;left:18%;top:10%;">
+        <img src="{% static 'images/index/TOP.png' %}" style="position:absolute;left:18%;bottom:28%;">
+      </button>
+    </div>
+    <div class="ui basic segment bottomwhite">
+      <p>
+        Designed by Mugglecoding
+      </p>
+      <p>
+        Developed by XYX
+      </p>
+      <p style="position:absolute;right:250px;top:40px;">
+        京ICP备123878345号
+      </p>
+    </div>
+    <script>
+      var vm = new Vue(
+        {
+          el:"#app",
+          data:{
+               "cates":[],
+               "editor_recommendtop3list":[],
+               "editor_recommendlist":[],
+               "pages":"",
+               "this_page":1,
+               "article_list":[]
+          },
+          methods:{
+            leftcaret_color:function(){
+              if(this.this_page > 1){
+                return "red"
+              }
+              else{
+                return ""
+              }
+            },
+
+            rightcaret_color:function(){
+              if(this.this_page < this.pages){
+                return "red"
+              }
+              else{
+                return ""
+              }
+            },
+
+            previous_disabled_status:function(){
+              if(this.this_page > 1){
+                return ""
+              }
+              else{
+                return "disabled"
+              }
+            },
+
+            next_disabled_status:function(){
+              if(this.this_page < this.pages){
+                return ""
+              }
+              else{
+                return "disabled"
+              }
+            },
+
+            pagenum_active_status:function(page){
+              if(this.this_page == page){
+                return "active"
+              }
+              else{
+                return ""
+              }
+            },
+
+            pagenum_color:function(page){
+              if(this.this_page == page){
+                return "background-color: red; color:white"
+              }
+              else{
+                return ""
+              }
+            },
+
+            update_page:function(page){
+              var self = this;
+              var id = location.href.split("/")[4];
+              if(page > this.pages){
+                page = this.pages;
+              };
+              if(page < 1){
+                page = 1;
+              }
+              this.this_page = page;
+              reqwest({
+                url:'/api/category/' + id +'?page='+self.this_page,
+                type:'json',
+                method:'get',
+                success:function(resp){
+                  self.article_list = resp.article_list;
+                }
+              })
+            },
+
+            getdata:function(){
+              var self = this;
+              var id = location.href.split("/")[4];
+              reqwest({
+                url:'/api/category/' + id +'?page='+self.this_page,
+                type:'json',
+                method:'get',
+                success:function(resp){
+                  console.log(resp);
+                  self.cates = resp.cates;
+                  self.editor_recommendtop3list = resp.editor_recommendtop3list;
+                  self.editor_recommendlist = resp.editor_recommendlist;
+                  self.pages = resp.pages;
+                  self.article_list = resp.article_list;
+                },
+              })
+            },
+          },
+
+          ready:function(){
+            this.getdata();
+          }
+
+        }
+      )
+    </script>
+  </body>
+
+</html>

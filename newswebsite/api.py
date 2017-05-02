@@ -59,7 +59,7 @@ def api_index(request):                                                #首页ap
 
     article_list = Article.objects.all().order_by("-publish_time") #取出所有文章
     pagerobot = Paginator(article_list,5)                         #创建分页器，每页限定五篇文章
-    page_num = request.GET.get("page",1)                            #取到当前页数
+    page_num = request.GET.get("page")                            #取到当前页数
     try:
         article_list = pagerobot.page(page_num)                   #一般情况下返回当前页码下的文章
     except EmptyPage:
@@ -101,7 +101,7 @@ def api_category(request,cate_id):
     article_list = Article.objects.filter(category=int(cate_id)).order_by("-publish_time") #取出当前目录下的所有文章
     print(article_list[0].category)
     pagerobot = Paginator(article_list,5)                         #创建分页器，每页限定五篇文章
-    page_num = request.GET.get("page",1)                            #取到当前页数
+    page_num = request.GET.get("page")                            #取到当前页数
     try:
         article_list = pagerobot.page(page_num)                   #一般情况下返回当前页码下的文章
     except EmptyPage:
